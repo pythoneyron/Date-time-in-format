@@ -1,5 +1,7 @@
-require_relative 'app'
+require_relative 'middleware/check_date_time_request'
 require_relative 'middleware/date_time_formatter'
+require_relative 'app'
 
-use App
-run DateTimeFormatter.new
+use CheckDateTimeRequest
+use DateTimeFormatter
+run App.new

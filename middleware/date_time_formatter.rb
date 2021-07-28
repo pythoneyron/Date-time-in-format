@@ -1,14 +1,14 @@
 class DateTimeFormatter
-
-  HEADERS = { 'Content-Type' => 'text/plain' }.freeze
-
-  STATUS_SUCCESS = 200
+  def initialize(app)
+    @app = app
+  end
 
   def call(env)
+    status, headers, body = @app.call(env)
     valid_params = env['valid_params']
 
-    body = date_time_to_format(valid_params)
-    prepare_response(STATUS_SUCCESS, body)
+    body << date_time_to_format(valid_params)
+    prepare_response(status, headers, body)
   end
 
   private
@@ -19,8 +19,8 @@ class DateTimeFormatter
     DateTime.now.strftime(format)
   end
 
-  def prepare_response(status, body_data)
-    Rack::Response.new(body_data, status, HEADERS).finish
+  def prepare_response(status, headers, body_data)
+    Rack::Response.new(body_data, status, headers).finish
   end
 
 end
