@@ -4,32 +4,29 @@ class App
   STATUS_BAD_REQUEST = 400
 
   HEADERS = { 'Content-Type' => 'text/plain' }.freeze
-
-  def initialize(app)
-    @app = app
-  end
+  PATH_TIME = '/time'.freeze
 
   def call(env)
-    status, headers, body = @app.call(env)
+    request_path = env['REQUEST_PATH']
+    return prepare_response(STATUS_NOT_FOUND, ["Not found #{PATH_TIME}\n"]) unless request_path == PATH_TIME
 
-    return prepare_response(STATUS_NOT_FOUND, ["Not found #{@app.request_path}\n"]) unless @app.success_request_path?
+    format_values = parse_query_string(env['QUERY_STRING'])
+    return prepare_response(STATUS_NOT_FOUND, ["Format not defined\n"]) if format_values.nil? || format_values == ''
 
-    return prepare_response(STATUS_NOT_FOUND, ["Param 'format' not found\n"]) unless @app.success_format_value?
+    dt_obj = DateTimeFormatter.new
+    time_string = dt_obj.call(format_values)
+    return prepare_response(STATUS_BAD_REQUEST, ["Unknown time format #{dt_obj.invalid_params}\n"]) unless dt_obj.success_params?
 
-    return prepare_response(STATUS_NOT_FOUND, ["Format not defined\n"]) unless @app.success_query_string?
-
-    return prepare_response(STATUS_BAD_REQUEST, ["Unknown time format #{@app.invalid_params}\n"]) unless @app.success_params?
-
-    [status, headers, body]
+    prepare_response(200, time_string)
   end
 
   private
 
-  def request_uri_time?(request_path)
-    request_path == PATH_TIME
-  end
-
   def prepare_response(status, body_data)
     Rack::Response.new(body_data, status, HEADERS).finish
+  end
+
+  def parse_query_string(query_string)
+    Rack::Utils.parse_nested_query(query_string)['format']
   end
 end
