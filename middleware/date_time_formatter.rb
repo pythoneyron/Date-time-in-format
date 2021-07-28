@@ -33,7 +33,7 @@ class DateTimeFormatter
   end
 
   def success_format_value?
-    !@format_values.nil?
+    !format_values.nil?
   end
 
   private
