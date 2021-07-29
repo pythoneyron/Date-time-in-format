@@ -17,7 +17,7 @@ class App
     time_string = dt_obj.call(format_values)
     return prepare_response(STATUS_BAD_REQUEST, ["Unknown time format #{dt_obj.invalid_params}\n"]) unless dt_obj.success_params?
 
-    prepare_response(200, time_string)
+    prepare_response(STATUS_SUCCESS, time_string)
   end
 
   private

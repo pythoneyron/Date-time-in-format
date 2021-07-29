@@ -5,7 +5,10 @@ class DateTimeFormatter
 
   def call(format_values)
     @valid_params, @invalid_params = check_valid_or_invalid_format_params(format_values)
-    @time_string = date_time_to_format(valid_params)
+  end
+
+  def date_time
+    date_time_to_format(valid_params)
   end
 
   def success_params?
